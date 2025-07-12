@@ -1,4 +1,4 @@
-# Connector Fabric Manager Extensions for Fulcrum
+# Fulcrum CFM Agent
 
-[Fulcrum](https://github.com/fulcrumproject/core) extensions
+A [Fulcrum](https://github.com/fulcrumproject/core) agent
 for [CFM](https://github.com/Metaform/connector-fabric-manager). 
