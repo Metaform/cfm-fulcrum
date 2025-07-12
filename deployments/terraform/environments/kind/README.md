@@ -6,8 +6,19 @@ Build the CFM Fulcrum Agent Docker image.
 
 ## Kind Setup
 
-Install Kind and create a cluster. Set it as the default K8S context. Load the runtime image locally into Kind:
+Install Kind and create a cluster. Set it as the default K8S context. 
 
+```
+kind create cluster --config kind-config.yaml
+```
+
+Load the runtime images locally into Kind:
+
+```
+kind load docker-image pmanager:latest
+kind load docker-image tmanager:latest
+```
+and
 ```
 kind load docker-image cfm-fulcrum:latest
 ```

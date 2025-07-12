@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"github.com/metaform/cfm-fulcrum/internal/client"
 	"github.com/metaform/cfm-fulcrum/internal/job"
+	"github.com/metaform/cfm-fulcrum/internal/management"
 	"github.com/metaform/connector-fabric-manager/assembly/httpclient"
 	"github.com/metaform/connector-fabric-manager/assembly/routing"
 	"github.com/metaform/connector-fabric-manager/common/config"
@@ -62,6 +63,7 @@ func Launch(shutdown <-chan struct{}) {
 
 	assembler.Register(&client.ClientServiceAssembly{})
 	assembler.Register(&job.JobServiceAssembly{})
+	assembler.Register(&management.ManagementServiceAssembly{})
 
 	runtime.AssembleAndLaunch(assembler, agentName, logMonitor, shutdown)
 }

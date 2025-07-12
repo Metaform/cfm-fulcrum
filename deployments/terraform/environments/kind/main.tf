@@ -25,4 +25,5 @@ module "cfm-agent" {
   cfm-agent_image = "cfm-fulcrum:latest"
   fulcrum_token   = "123"
   pull_policy     = "Never"  # pull locally from Docker
+  enable_nodeport = true
 }
