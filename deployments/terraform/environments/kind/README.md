@@ -17,6 +17,7 @@ Load the runtime images locally into Kind:
 ```
 kind load docker-image pmanager:latest
 kind load docker-image tmanager:latest
+kind load docker-image testagent:latest
 ```
 and
 ```
