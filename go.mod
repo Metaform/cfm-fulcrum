@@ -3,6 +3,7 @@ module github.com/metaform/cfm-fulcrum
 go 1.24.4
 
 require (
+	github.com/go-chi/chi/v5 v5.2.1
 	github.com/metaform/connector-fabric-manager/assembly v0.0.0-20250712104620-e119c5f4d7eb
 	github.com/metaform/connector-fabric-manager/common v0.0.0-20250712104620-e119c5f4d7eb
 	github.com/stretchr/testify v1.10.0
@@ -12,7 +13,6 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
-	github.com/go-chi/chi/v5 v5.2.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect

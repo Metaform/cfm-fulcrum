@@ -1,0 +1,71 @@
+#  Copyright (c) 2025 Metaform Systems, Inc
+#
+#  This program and the accompanying materials are made available under the
+#  terms of the Apache License, Version 2.0 which is available at
+#  https://www.apache.org/licenses/LICENSE-2.0
+#
+#  SPDX-License-Identifier: Apache-2.0
+#
+#  Contributors:
+#       Metaform Systems, Inc. - initial API and implementation
+#
+
+# Test REST client.
+#
+# Note that deployment manifests require a unique id. If the id is not unique, de-duplication will be performed and
+# subsequent requests will be ignored. Requests therefore generate unique ids. In GoLand, this is done using {{$uuid}}.
+# In VS Code, this is done with {{$guid}}. If you are executing requests using VS Code, you will need to change
+# occurences of {{$uuid}} to {{$guid}}.
+
+@pmanagerBaseUrl = http://localhost:8181/
+
+### Create a test activity definition
+# @name createTestActivityDefinition
+POST {{pmanagerBaseUrl}}/activity-definition
+
+{
+  "type": "test.activity",
+  "description": "Performs a test activity"
+}
+
+### Create a test deployment definition
+# @name createTestDeploymentDefinition
+POST {{pmanagerBaseUrl}}/deployment-definition
+
+{
+  "type": "test.deployment",
+  "apiVersion": "v1",
+  "resource": {
+    "group": "deployments.example.com",
+    "singular": "TestDeployment",
+    "plural": "TestDeployments",
+    "description": "Test deployment"
+  },
+  "versions": [
+    {
+      "version": "1.0.0",
+      "active": true,
+      "schema": {
+        "openAPIV3Schema": {}
+      },
+      "activities": [
+        {
+          "id": "activity1",
+          "type": "test-activity",
+          "inputs": []
+        }
+      ]
+    }
+  ]
+}
+
+### Create a test deployment
+# @name createTestDeployment
+POST {{pmanagerBaseUrl}}/deployment
+
+{
+  "DeploymentType": "test.deployment",
+  "ID": "{{$uuid}}",
+  "Payload": {}
+}
+
