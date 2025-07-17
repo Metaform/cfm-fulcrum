@@ -15,6 +15,8 @@ kind create cluster --config kind-config.yaml
 Load the runtime images locally into Kind:
 
 ```
+kind load docker-image fulcrum-core:latest
+
 kind load docker-image pmanager:latest
 kind load docker-image tmanager:latest
 kind load docker-image testagent:latest
@@ -34,4 +36,19 @@ configured to use the default K8S context. To deploy:
 ```
 terraform init
 terraform apply
+```
+
+## Run Demo Scenario
+
+View the CFM Test Agent logs:
+
+```
+k logs -f -l app=testagent
+```
+
+From the root directory:
+
+```
+go run cmd/demo/main.go -action=onboard
+go run cmd/demo/main.go -action=service
 ```

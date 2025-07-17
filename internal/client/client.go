@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"sync/atomic"
 	"time"
 )
 
@@ -84,22 +85,30 @@ type FulcrumClient interface {
 	CompleteJob(jobID string, resources any) error
 	FailJob(jobID string, errorMessage string) error
 	ReportMetric(metrics *MetricEntry) error
+
+	UpdateToken(token string) error
 }
 
 type HTTPFulcrumClient struct {
 	baseURL    string
 	httpClient *http.Client
-	token      string // Agent authentication token
+	token      atomic.Pointer[string] // Agent authentication token
 }
 
 func NewHTTPFulcrumClient(baseURL string, token string) FulcrumClient {
-	return &HTTPFulcrumClient{
+	client := &HTTPFulcrumClient{
 		baseURL: baseURL,
-		token:   token,
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 		},
 	}
+	client.token.Store(&token)
+	return client
+}
+
+func (c *HTTPFulcrumClient) UpdateToken(token string) error {
+	c.token.Store(&token)
+	return nil
 }
 
 // UpdateAgentStatus updates the agent's status in Fulcrum Core
@@ -254,8 +263,8 @@ func (c *HTTPFulcrumClient) get(endpoint string) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	req.Header.Set("Authorization", "Bearer "+c.token)
+	fmt.Println("******" + c.getToken())
+	req.Header.Set("Authorization", "Bearer "+c.getToken())
 	req.Header.Set("Content-Type", "application/json")
 
 	return c.httpClient.Do(req)
@@ -273,7 +282,7 @@ func (c *HTTPFulcrumClient) post(endpoint string, body []byte) (*http.Response, 
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", "Bearer "+c.token)
+	req.Header.Set("Authorization", "Bearer "+c.getToken())
 
 	req.Header.Set("Content-Type", "application/json")
 
@@ -292,8 +301,16 @@ func (c *HTTPFulcrumClient) put(endpoint string, body []byte) (*http.Response, e
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", "Bearer "+c.token)
+	req.Header.Set("Authorization", "Bearer "+c.getToken())
 	req.Header.Set("Content-Type", "application/json")
 
 	return c.httpClient.Do(req)
+}
+
+func (c *HTTPFulcrumClient) getToken() string {
+	tokenPtr := c.token.Load()
+	if tokenPtr == nil {
+		return ""
+	}
+	return *tokenPtr
 }

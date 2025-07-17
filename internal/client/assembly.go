@@ -14,14 +14,16 @@ package client
 
 import (
 	"fmt"
+	"github.com/metaform/cfm-fulcrum/internal/sysconfig"
 	"github.com/metaform/connector-fabric-manager/common/runtime"
 	"github.com/metaform/connector-fabric-manager/common/system"
 )
 
 const (
-	ClientKey    system.ServiceType = "client:Client"
-	fulcrumUri                      = "fulcrum.uri"
-	fulcrumToken                    = "fulcrum.token"
+	FulcrumClientKey system.ServiceType = "client:FulcrumClient"
+	ApiClientKey     system.ServiceType = "client:ApiClient"
+	fulcrumUri                          = "fulcrum.uri"
+	fulcrumToken                        = "fulcrum.token"
 )
 
 type ClientServiceAssembly struct {
@@ -33,20 +35,29 @@ func (a *ClientServiceAssembly) Name() string {
 }
 
 func (d *ClientServiceAssembly) Provides() []system.ServiceType {
-	return []system.ServiceType{ClientKey}
+	return []system.ServiceType{FulcrumClientKey, ApiClientKey}
 }
 
-func (a *ClientServiceAssembly) Init(context *system.InitContext) error {
-	uri := context.Config.GetString(fulcrumUri)
-	token := context.Config.GetString(fulcrumToken)
+func (a *ClientServiceAssembly) Init(ctx *system.InitContext) error {
+	uri := ctx.Config.GetString(fulcrumUri)
+	token := ctx.Config.GetString(fulcrumToken)
+	tmanagerUrl := ctx.Config.GetString(sysconfig.TManagerUrlKey)
+	pmanagerUrl := ctx.Config.GetString(sysconfig.PManagerUrlKey)
+
 	err := runtime.CheckRequiredParams(
-		fmt.Sprintf("%s.%s", context.Config.GetEnvPrefix(), fulcrumUri), uri,
-		fmt.Sprintf("%s.%s", context.Config.GetEnvPrefix(), fulcrumToken), token)
+		fmt.Sprintf("%s.%s", ctx.Config.GetEnvPrefix(), fulcrumUri), uri,
+		fmt.Sprintf("%s.%s", ctx.Config.GetEnvPrefix(), fulcrumToken), token,
+		fmt.Sprintf("%s.%s", ctx.Config.GetEnvPrefix(), sysconfig.TManagerUrlKey), tmanagerUrl,
+		fmt.Sprintf("%s.%s", ctx.Config.GetEnvPrefix(), sysconfig.PManagerUrlKey), pmanagerUrl)
 	if err != nil {
 		panic(fmt.Errorf("error launching %s: %w", a.Name(), err))
 	}
 
-	client := NewHTTPFulcrumClient(uri, token)
-	context.Registry.Register(ClientKey, client)
+	fulcrumClient := NewHTTPFulcrumClient(uri, token)
+	ctx.Registry.Register(FulcrumClientKey, fulcrumClient)
+
+	apiClient := NewApiClient(pmanagerUrl, fulcrumUri, "not-used")
+	ctx.Registry.Register(ApiClientKey, *apiClient)
+
 	return nil
 }

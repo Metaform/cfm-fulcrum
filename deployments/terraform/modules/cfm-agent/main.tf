@@ -17,24 +17,9 @@ locals {
   labels = merge(local.default_labels, var.labels)
 }
 
-variable "tmanager_url" {
-  description = "Tenant Manager URL"
-  type    = string
-  default = "http://todo"
-}
-variable "pmanager_url" {
-  description = "Provision Manager URL"
-  type    = string
-  default = "http://todo"
-}
-variable "fulcrum_uri" {
-  description = "Fulcrum Core URI"
-  type    = string
-  default = "http://todo"
-}
 variable "fulcrum_token" {
   description = "Fulcrum API token"
-  type = string
+  type        = string
 }
 
 resource "kubernetes_deployment" "cfm-agent" {
@@ -74,17 +59,17 @@ resource "kubernetes_deployment" "cfm-agent" {
 
           env {
             name  = "CFM-AGENT_TMANAGER_URL"
-            value = var.tmanager_url
-          }
-          env {
-            name  = "CFM-AGENT_PMANAGER_URL"
-            value = var.pmanager_url
+            value = var.tmanager_service_url
           }
 
+          env {
+            name  = "CFM-AGENT_PMANAGER_URL"
+            value = var.pmanager_service_url
+          }
 
           env {
             name  = "CFM-AGENT_FULCRUM_URI"
-            value = var.fulcrum_uri
+            value = "http://${var.fulcrum_core_service}:${var.fulcrum_core_port}"
           }
 
 
@@ -92,22 +77,6 @@ resource "kubernetes_deployment" "cfm-agent" {
             name  = "CFM-AGENT_FULCRUM_TOKEN"
             value = var.fulcrum_token
           }
-
-
-          # env {
-          #   name  = "PORT"
-          #   value = tostring(var.cfm-agent_port)
-          # }
-
-          # env {
-          #   name  = "LOG_LEVEL"
-          #   value = var.log_level
-          # }
-
-          # env {
-          #   name  = "METRICS_PORT"
-          #   value = tostring(var.metrics_port)
-          # }
 
           resources {
             limits   = var.resources.limits

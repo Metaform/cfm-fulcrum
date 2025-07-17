@@ -17,6 +17,7 @@ import (
 	"github.com/metaform/cfm-fulcrum/internal/client"
 	"github.com/metaform/cfm-fulcrum/internal/job"
 	"github.com/metaform/cfm-fulcrum/internal/management"
+	"github.com/metaform/cfm-fulcrum/internal/sysconfig"
 	"github.com/metaform/connector-fabric-manager/assembly/httpclient"
 	"github.com/metaform/connector-fabric-manager/assembly/routing"
 	"github.com/metaform/connector-fabric-manager/common/config"
@@ -25,12 +26,10 @@ import (
 )
 
 const (
-	configPrefix   = "cfm-agent"
-	tmanagerUrlKey = "tmanager_url"
-	pmanagerUrlKey = "pmanager_url"
-	agentName      = "Fulcrum CFM Agent"
-	defaultPort    = 8080
-	httpKey        = "httpPort"
+	configPrefix = "cfm-agent"
+	agentName    = "Fulcrum CFM Agent"
+	defaultPort  = 8080
+	httpKey      = "httpPort"
 )
 
 func LaunchAndWaitSignal() {
@@ -45,12 +44,12 @@ func Launch(shutdown <-chan struct{}) {
 	defer logMonitor.Sync()
 
 	vConfig := config.LoadConfigOrPanic(configPrefix)
-	tmanagerUrl := vConfig.GetString(tmanagerUrlKey)
-	pmanagerUrl := vConfig.GetString(pmanagerUrlKey)
+	tmanagerUrl := vConfig.GetString(sysconfig.TManagerUrlKey)
+	pmanagerUrl := vConfig.GetString(sysconfig.PManagerUrlKey)
 
 	err := runtime.CheckRequiredParams(
-		fmt.Sprintf("%s.%s", configPrefix, tmanagerUrlKey), tmanagerUrl,
-		fmt.Sprintf("%s.%s", configPrefix, pmanagerUrlKey), pmanagerUrl)
+		fmt.Sprintf("%s.%s", configPrefix, sysconfig.TManagerUrlKey), tmanagerUrl,
+		fmt.Sprintf("%s.%s", configPrefix, sysconfig.PManagerUrlKey), pmanagerUrl)
 	if err != nil {
 		panic(fmt.Errorf("error launching %s: %w", agentName, err))
 	}

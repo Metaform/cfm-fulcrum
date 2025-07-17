@@ -64,8 +64,8 @@ variable "resources" {
 
 variable "labels" {
   description = "Additional labels to apply to all resources"
-  type        = map(string)
-  default     = {}
+  type = map(string)
+  default = {}
 }
 
 variable "cfm-agent_port" {
@@ -97,3 +97,24 @@ variable "metrics_nodeport" {
   type        = number
   default     = 30090
 }
+
+variable "fulcrum_core_service" {
+  description = "Service name for Fulcrum core"
+  type = string
+}
+
+variable "fulcrum_core_port" {
+  description = "Port for Fulcrum core"
+  type = number
+}
+
+variable "pmanager_service_url" {
+  description = "URL for CFM Provision Manager"
+  type = string
+}
+
+variable "tmanager_service_url" {
+  description = "URL for CFM Tenant Manager"
+  type = string
+}
+

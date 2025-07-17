@@ -14,14 +14,19 @@ package job
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/metaform/cfm-fulcrum/internal/client"
+	"github.com/metaform/connector-fabric-manager/common/monitor"
+	"github.com/metaform/connector-fabric-manager/pmanager/api"
 	"time"
 )
 
 // JobHandler processes jobs from the Fulcrum Core job queue
 type JobHandler struct {
-	client client.FulcrumClient
-	stats  struct {
+	fulcrumClient client.FulcrumClient
+	apiClient     client.ApiClient
+	monitor       monitor.LogMonitor
+	stats         struct {
 		processed int
 		succeeded int
 		failed    int
@@ -45,22 +50,24 @@ type VMProps struct {
 }
 
 // NewJobHandler creates a new job handler
-func NewJobHandler(client client.FulcrumClient) *JobHandler {
+func NewJobHandler(fulcrumClient client.FulcrumClient, apiClient client.ApiClient, monitor monitor.LogMonitor) *JobHandler {
 	return &JobHandler{
-		client: client,
+		fulcrumClient: fulcrumClient,
+		apiClient:     apiClient,
+		monitor:       monitor,
 	}
 }
 
 // PollAndProcessJobs polls for pending jobs and processes them
 func (h *JobHandler) PollAndProcessJobs() error {
 	// Get pending jobs
-	jobs, err := h.client.GetPendingJobs()
+	jobs, err := h.fulcrumClient.GetPendingJobs()
 	if err != nil {
 		return fmt.Errorf("failed to get pending jobs: %w", err)
 	}
 
 	if len(jobs) == 0 {
-		// log.Printf("Pending jobs not found")
+		h.monitor.Infof("Pending jobs not found")
 		return nil
 	}
 	// First
@@ -68,7 +75,7 @@ func (h *JobHandler) PollAndProcessJobs() error {
 	// Increment processed count
 	h.stats.processed++
 	// Claim the job
-	if err := h.client.ClaimJob(job.ID); err != nil {
+	if err := h.fulcrumClient.ClaimJob(job.ID); err != nil {
 		// log.Printf("Failed to claim job %s: %v", job.ID, err)
 		h.stats.failed++
 		return err
@@ -81,13 +88,13 @@ func (h *JobHandler) PollAndProcessJobs() error {
 		//	log.Printf("Job %s failed: %v", job.ID, err)
 		h.stats.failed++
 
-		if failErr := h.client.FailJob(job.ID, err.Error()); failErr != nil {
+		if failErr := h.fulcrumClient.FailJob(job.ID, err.Error()); failErr != nil {
 			//	log.Printf("Failed to mark job %s as failed: %v", job.ID, failErr)
 			return failErr
 		}
 	} else {
 		// Job succeeded
-		if complErr := h.client.CompleteJob(job.ID, resp); complErr != nil {
+		if complErr := h.fulcrumClient.CompleteJob(job.ID, resp); complErr != nil {
 			//	log.Printf("Failed to mark job %s as completed: %v", job.ID, complErr)
 			return complErr
 		}
@@ -108,6 +115,19 @@ func (h *JobHandler) processJob(job *client.Job) (any, error) {
 	case client.JobActionServiceDelete:
 	default:
 		return nil, fmt.Errorf("unknown job type: %s", job.Action)
+	}
+
+	requestBody := api.DeploymentManifest{
+		DeploymentType: "test.deployment",
+		ID:             uuid.New().String(),
+		Payload:        make(map[string]any),
+	}
+
+	fmt.Printf("Processing job %s of type %s", job.ID, job.Action)
+	err := h.apiClient.PostToPManager("deployment", requestBody)
+	if err != nil {
+		h.monitor.Severef("**********error in job handler **********: %w", err)
+		return nil, err
 	}
 	return nil, nil
 }

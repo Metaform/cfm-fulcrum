@@ -17,10 +17,13 @@
 # In VS Code, this is done with {{$guid}}. If you are executing requests using VS Code, you will need to change
 # occurences of {{$uuid}} to {{$guid}}.
 
+@cfmAgentBaseUrl = http://localhost:8383/
 @pmanagerBaseUrl = http://localhost:8181/
+@fulcrumCoreBaseUrl = http://localhost:8080/api/v1
+@adminToken = admin-test-token
 
-### Create a test activity definition
-# @name createTestActivityDefinition
+
+### createTestActivityDefinition
 POST {{pmanagerBaseUrl}}/activity-definition
 
 {
@@ -28,8 +31,8 @@ POST {{pmanagerBaseUrl}}/activity-definition
   "description": "Performs a test activity"
 }
 
-### Create a test deployment definition
-# @name createTestDeploymentDefinition
+
+### createTestDeploymentDefinition
 POST {{pmanagerBaseUrl}}/deployment-definition
 
 {
@@ -59,8 +62,8 @@ POST {{pmanagerBaseUrl}}/deployment-definition
   ]
 }
 
-### Create a test deployment
-# @name createTestDeployment
+
+### createTestDeployment
 POST {{pmanagerBaseUrl}}/deployment
 
 {
@@ -68,4 +71,38 @@ POST {{pmanagerBaseUrl}}/deployment
   "ID": "{{$uuid}}",
   "Payload": {}
 }
+
+
+### createServiceGroup
+POST {{fulcrumCoreBaseUrl}}/service-groups
+Authorization: Bearer {{adminToken}}
+
+{
+  "name": "cfm",
+  "consumerID":"586a5fb8-86e1-4672-b490-b06d86f1b274"
+}
+
+### getServiceGroups
+GET {{fulcrumCoreBaseUrl}}/service-groups
+Authorization: Bearer {{adminToken}}
+
+### getServiceTypes
+GET {{fulcrumCoreBaseUrl}}/service-types
+Authorization: Bearer {{adminToken}}
+
+### getParticipants
+GET {{fulcrumCoreBaseUrl}}/participants
+Authorization: Bearer {{adminToken}}
+
+### getAgents
+GET {{fulcrumCoreBaseUrl}}/agents
+Authorization: Bearer {{adminToken}}
+
+### getJobs
+GET {{fulcrumCoreBaseUrl}}/jobs
+Authorization: Bearer {{adminToken}}
+
+### getTokens
+GET {{fulcrumCoreBaseUrl}}/tokens
+Authorization: Bearer {{adminToken}}
 

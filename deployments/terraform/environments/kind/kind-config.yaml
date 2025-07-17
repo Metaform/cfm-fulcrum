@@ -4,15 +4,16 @@ apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
   - role: control-plane
     extraPortMappings:
-      - containerPort: 30080
+      - containerPort: 30080    # CFM Agent
         hostPort: 8383
         protocol: TCP
-      - containerPort: 30090
-        hostPort: 9393
-        protocol: TCP
-      - containerPort: 30081
+      - containerPort: 30081    # PManager
         hostPort: 8181
         protocol: TCP
-      - containerPort: 30082
+      - containerPort: 30082    # TManager
         hostPort: 8282
         protocol: TCP
+      - containerPort: 30083    # Fulcrum Core
+        hostPort: 8080
+        protocol: TCP
+
