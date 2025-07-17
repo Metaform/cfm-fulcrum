@@ -35,7 +35,6 @@ func (a *JobServiceAssembly) Start(ctx *system.StartContext) error {
 	a.stopChannel = make(chan struct{})
 
 	go func() {
-		ctx.LogMonitor.Infof("Starting job service")
 		ticker := time.NewTicker(30 * time.Second) // TODO configure
 		defer ticker.Stop()
 		for {
