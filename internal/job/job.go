@@ -70,24 +70,20 @@ func (h *JobHandler) PollAndProcessJobs() error {
 		h.monitor.Infof("Pending jobs not found")
 		return nil
 	}
-	// First
 	job := jobs[0]
-	// Increment processed count
 	h.stats.processed++
+
 	// Claim the job
 	if err := h.fulcrumClient.ClaimJob(job.ID); err != nil {
-		// log.Printf("Failed to claim job %s: %v", job.ID, err)
 		h.stats.failed++
 		return err
 	}
-	//log.Printf("Processing job %s of type %s", job.ID, job.Action)
+
 	// Process the job
 	resp, err := h.processJob(job)
 	if err != nil {
 		// Mark job as failed
-		//	log.Printf("Job %s failed: %v", job.ID, err)
 		h.stats.failed++
-
 		if failErr := h.fulcrumClient.FailJob(job.ID, err.Error()); failErr != nil {
 			//	log.Printf("Failed to mark job %s as failed: %v", job.ID, failErr)
 			return failErr
@@ -99,7 +95,6 @@ func (h *JobHandler) PollAndProcessJobs() error {
 			return complErr
 		}
 		h.stats.succeeded++
-		//	log.Printf("Job %s completed successfully", job.ID)
 	}
 
 	return nil
