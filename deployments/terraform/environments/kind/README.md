@@ -38,17 +38,3 @@ terraform init
 terraform apply
 ```
 
-## Run Demo Scenario
-
-View the CFM Test Agent logs:
-
-```
-k logs -f -l app=testagent
-```
-
-From the root directory:
-
-```
-go run cmd/demo/main.go -action=onboard
-go run cmd/demo/main.go -action=service
-```
